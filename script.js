@@ -7,6 +7,7 @@ const gameController = (() => {
   let playerMark = 'x';
   let computerMark = 'o';
   document.getElementById('mark-x').classList.add('selected-mark');
+  document.getElementById('mark-o-selection').classList.add('disabled-mark_selection');
 
   const onMarkClick = function() {
     if (this.classList.contains("selected-mark")) {
@@ -18,11 +19,15 @@ const gameController = (() => {
       playerMark = 'x';
       computerMark = 'o';
       document.getElementById('mark-o').classList.remove('selected-mark');
+      document.getElementById('mark-o-selection').classList.add('disabled-mark_selection');
+      document.getElementById('mark-x-selection').classList.remove('disabled-mark_selection');
     }
     else {
       playerMark = 'o';
       computerMark = 'x';
       document.getElementById('mark-x').classList.remove('selected-mark');
+      document.getElementById('mark-o-selection').classList.remove('disabled-mark_selection');
+      document.getElementById('mark-x-selection').classList.add('disabled-mark_selection');
     }
   }
 
@@ -65,6 +70,7 @@ const gameController = (() => {
   }
 
   const resetField = function() {
+    currentWinner = '';
     currentMark = 'x';
     for (gameField of gameBoard) {
       gameField.innerHTML = '';
