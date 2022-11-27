@@ -1,3 +1,38 @@
 * {
     border: 1px solid orange;
 }
+
+#game {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#marks {
+    display: flex;
+    gap: 32px;
+}
+
+.selected-mark {
+    outline: 2px solid #030393;
+}
+
+#game-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+}
+
+.gamefield {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameboard {
+    display: grid;
+    grid-template-rows: 50px 50px 50px;
+    grid-template-columns: 50px 50px 50px;
+}

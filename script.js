@@ -1,48 +1,93 @@
 const gameController = (() => {
-  let currentMark = 'x';
   let gridWidth = 3;
   let gridHeight = 3;
 
-  let currentWinner = '';
+  // marks
+  let currentMark = 'x';
   let playerMark = 'x';
   let computerMark = 'o';
+  document.getElementById('mark-x').classList.add('selected-mark');
 
+  const onMarkClick = function() {
+    if (this.classList.contains("selected-mark")) {
+      return;
+    }
+
+    this.classList.add('selected-mark');
+    if (this.id ==='mark-x') {
+      playerMark = 'x';
+      computerMark = 'o';
+      document.getElementById('mark-o').classList.remove('selected-mark');
+    }
+    else {
+      playerMark = 'o';
+      computerMark = 'x';
+      document.getElementById('mark-x').classList.remove('selected-mark');
+    }
+  }
+
+  const marks = document.querySelectorAll('.mark');
+  for (const mark of marks) {
+    mark.addEventListener('click', onMarkClick);
+  }
+
+  // Start Game
+  const gameStatus = document.getElementById('game-status');
+  const onNewGameButtonClick = function() {
+    resetField();
+    updateGameStatus();
+    playNextTurn();
+  }
+
+  const updateGameStatus = function() {
+    if (currentMark === playerMark) {
+      gameStatus.innerHTML = 'Your turn';
+    }
+    else {
+      gameStatus.innerHTML = "Computer's turn. Computer is thinking ...";
+    }
+  }
+
+  const newGameButton = document.getElementById('new-game-button');
+  newGameButton.addEventListener('click', onNewGameButtonClick);
+
+  // Game Field
   const onGameFieldClick = function() {
-    if (currentMark === playerMark && this.innerHTML === 'empty')
-    {
+    if (currentMark === playerMark && this.innerHTML === '') {
       markGameField(this, playerMark);
     }
   }
 
-  const list = document.querySelectorAll('.gamefield');
+  const gameBoard = document.querySelectorAll('.gamefield');
 
-  for (const el of list) {
-    el.addEventListener('click', onGameFieldClick);
+  for (const gameField of gameBoard) {
+    gameField.addEventListener('click', onGameFieldClick);
   }
 
   const resetField = function() {
     currentMark = 'x';
-    for (el of list) {
-      el.innerHTML = 'empty';
+    for (gameField of gameBoard) {
+      gameField.innerHTML = '';
     }
   }
 
-  const resetButton = document.querySelector('#reset_button');
-  resetButton.addEventListener('click', resetField);
-
+  let currentWinner = '';
   const markGameField = function(gameField, mark) {
     gameField.innerHTML = mark;
     if (gameEnded()) {
-      if (currentWinner !== '') {
-        console.log('game ended! winner mark - ' + currentMark);
+      if (currentWinner === playerMark) {
+        gameStatus.innerHTML = 'You win!';
+      }
+      else if (currentWinner === computerMark) {
+        gameStatus.innerHTML = 'Computer win!';
       }
       else {
-        console.log('game ended in a TIE');
+        gameStatus.innerHTML = 'Game ended in a TIE!';
       }
-
     }
     else {
       currentMark = (currentMark === playerMark) ? computerMark : playerMark;
+      updateGameStatus();
       playNextTurn();
     }
   }
@@ -55,20 +100,18 @@ const gameController = (() => {
         // row check
         if (col + 1 < gridWidth
             && col + 2 < gridWidth
-            && list[row + col].innerHTML === currentMark
-            && list[row + col + 1].innerHTML === currentMark
-            && list[row + col + 2].innerHTML === currentMark) {
-          console.log('row has 3 marks!');
+            && gameBoard[row + col].innerHTML === currentMark
+            && gameBoard[row + col + 1].innerHTML === currentMark
+            && gameBoard[row + col + 2].innerHTML === currentMark) {
           currentWinner = currentMark;
           return true;
         }
         // col check
         else if (row + gridHeight < gridWidth * gridHeight
             && row + gridHeight * 2 < gridWidth * gridHeight
-            && list[row + col].innerHTML === currentMark
-            && list[row + gridHeight + col].innerHTML === currentMark
-            && list[row + gridHeight * 2 + col].innerHTML === currentMark) {
-          console.log('col has 3 marks!');
+            && gameBoard[row + col].innerHTML === currentMark
+            && gameBoard[row + gridHeight + col].innerHTML === currentMark
+            && gameBoard[row + gridHeight * 2 + col].innerHTML === currentMark) {
           currentWinner = currentMark;
           return true;
         }
@@ -77,10 +120,9 @@ const gameController = (() => {
                 && col + 2 < gridWidth
                 && row - gridHeight >= 0
             && row - gridHeight * 2 >= 0
-            && list[row + col].innerHTML === currentMark
-            && list[row - gridHeight + col + 1].innerHTML === currentMark
-            && list[row - gridHeight * 2 + col + 2].innerHTML === currentMark) {
-          console.log('diagonal forward up has 3 marks!');
+            && gameBoard[row + col].innerHTML === currentMark
+            && gameBoard[row - gridHeight + col + 1].innerHTML === currentMark
+            && gameBoard[row - gridHeight * 2 + col + 2].innerHTML === currentMark) {
           currentWinner = currentMark;
           return true;
         }
@@ -89,19 +131,17 @@ const gameController = (() => {
                 && col + 2 < gridWidth
                 && row + gridHeight < gridWidth*gridHeight
             && row + gridHeight * 2  < gridWidth*gridHeight
-            && list[row + col].innerHTML === currentMark
-            && list[row + gridHeight + col + 1].innerHTML === currentMark
-            && list[row + gridHeight * 2 + col + 2].innerHTML === currentMark) {
-          console.log('diagonal forward down has 3 marks!');
+            && gameBoard[row + col].innerHTML === currentMark
+            && gameBoard[row + gridHeight + col + 1].innerHTML === currentMark
+            && gameBoard[row + gridHeight * 2 + col + 2].innerHTML === currentMark) {
           currentWinner = currentMark;
           return true;
         }
       }
     }
-    console.log('checking if game ended in a TIE!');
     let allFieldsAreMarked = true;
-    for (const span of list) {
-      if (span.innerHTML === 'empty') {
+    for (const span of gameBoard) {
+      if (span.innerHTML === '') {
         allFieldsAreMarked = false;
         break;
       }
@@ -111,15 +151,19 @@ const gameController = (() => {
 
   const playNextTurn = function() {
     if (currentMark === playerMark) {
-      console.log('waiting for the player to make a turn')
     }
     else {
       let emptyFields = [];
-      for (el of list) {
-        if (el.innerHTML === 'empty') emptyFields.push(el);
+      for (gameField of gameBoard) {
+        if (gameField.innerHTML === '') emptyFields.push(gameField);
       }
-      markGameField(emptyFields[Math.floor(Math.random()*emptyFields.length)], computerMark);
+      let randomGameField = emptyFields[Math.floor(Math.random()*emptyFields.length)];
+      setTimeout(markGameFieldWithDelay, 2000, randomGameField);
     }
+  }
+
+  const markGameFieldWithDelay = function(randomGameField) {
+    markGameField(randomGameField, computerMark);
   }
 
 })();
